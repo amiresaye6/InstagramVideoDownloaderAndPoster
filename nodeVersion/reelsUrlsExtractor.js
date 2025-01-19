@@ -1,4 +1,4 @@
-conspuppeteer = require('puppeteer'); t
+conspuppeteer = require('puppeteer');
 const fs = require('fs');
 
 // Helper function to introduce delays

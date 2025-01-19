@@ -1,5 +1,6 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+require('dotenv').config();
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -19,12 +20,12 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   await delay(2000); // Wait for 2 seconds
 
   // Enter username
-  await page.type('input[name="username"]', 'fadhakkir_quran');
+  await page.type('input[name="username"]', process.env.INSTAGRAM_USERNAME);
   console.log('Username entered.');
   await delay(2000); // Wait for 2 seconds
 
   // Enter password
-  await page.type('input[name="password"]', '.QbY2j&Q3-hqH6b');
+  await page.type('input[name="password"]', process.env.INSTAGRAM_PASSWORD);
   console.log('Password entered.');
   await delay(2000); // Wait for 2 seconds
 
@@ -41,11 +42,6 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const cookies = await page.cookies();
   fs.writeFileSync('cookies.json', JSON.stringify(cookies, null, 2));
   console.log('Cookies saved to cookies.json.');
-
-  // Optional: Take a screenshot of the homepage after login
-  await page.screenshot({ path: 'instagram_homepage.png' });
-  console.log('Screenshot taken.');
-  await delay(2000); // Wait for 2 seconds
 
   // Close the browser
   await browser.close();

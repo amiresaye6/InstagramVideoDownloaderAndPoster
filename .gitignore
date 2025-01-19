@@ -1,0 +1,5 @@
+.env
+cookies.json
+*.mp4
+downloads/
+node_modules/
