@@ -1,0 +1,15 @@
+#quran
+https://www.instagram.com/1ciou1/
+https://www.instagram.com/quran_kariimq/
+https://www.instagram.com/qura.n___91/
+https://www.instagram.com/quran_t31/
+https://www.instagram.com/quraan.versess/
+
+
+#to do
+
+add views count for my account
+send status dailey to telegram
+send logs like errors and confirm messages to telegram
+make an api and interface for starting, stopping and controlling the script
+upload the script into a server
