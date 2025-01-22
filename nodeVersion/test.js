@@ -11,4 +11,5 @@ const getViewsCount = require("./viewsCount");
 
 // console.log(process.env.INSTAGRAM_USERNAME);
 
-getViewsCount("https://www.instagram.com/amiralsayed21/reels/");
+// getViewsCount();
+

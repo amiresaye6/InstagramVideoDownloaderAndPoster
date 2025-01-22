@@ -5,12 +5,12 @@ const fs = require('fs');
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 
-module.exports.postVideo = async (videoPath, caption) => {
+module.exports = postVideo = async (videoPath, caption, dimentions_9_16 = true) => {
   let page;
 
   try {
     // Launch the browser
-    const browser = await puppeteer.launch({ headless: true }); // set headless to false if you want to see the web page.
+    const browser = await puppeteer.launch({ headless: false }); // set headless to false if you want to see the web page.
     page = await browser.newPage();
 
     // Load cookies from the file
@@ -58,17 +58,22 @@ module.exports.postVideo = async (videoPath, caption) => {
     console.log('Clicked the "OK" button.');
     await delay(1000); // Wait for 1 second
 
-    // Wait for the video processing to complete
-    // const videoProcessingSelector = 'div[aria-label="Video processing"]'; // Selector for the video processing indicator
-    // await page.waitForSelector(videoProcessingSelector, { visible: true, timeout: 30000 });
-    // console.log('Video processing started.');
+    // changing video dimentions to 9/16 optional
+    if (dimentions_9_16) {
+      try {
+        await page.waitForSelector('svg[aria-label="Select crop"]', { visible: true });
+        await page.click('svg[aria-label="Select crop"]');
+        console.log('Button clicked successfully!');
+        await delay(1000);
 
-    // Wait for the video processing to finish
-    // await page.waitForFunction(() => {
-    //   const processingIndicator = document.querySelector('div[aria-label="Video processing"]');
-    //   return !processingIndicator; // Wait until the processing indicator disappears
-    // }, { timeout: 300000 }); // Wait up to 5 minutes for video processing
-    // console.log('Video processing completed.');
+        await page.waitForSelector('svg[aria-label="Crop portrait icon"]', { visible: true });
+        await page.click('svg[aria-label="Crop portrait icon"]');
+        console.log('Button clicked successfully!');
+        await delay(1000);
+      } catch (error) {
+        console.error('Failed to click the button:', error);
+      }
+    }
 
     // Wait for the crop modal to appear (if applicable)
     const cropModalSelector = 'div[role="dialog"][aria-label="Crop"]';
@@ -116,47 +121,28 @@ module.exports.postVideo = async (videoPath, caption) => {
     console.log('Clicked the second "Next" button.');
     await delay(1000); // Wait for 1 second
 
-    // Wait for the "Create new post" modal to appear
-    const createPostModalSelector = 'div[role="dialog"][aria-label="Create new post"]';
-    await page.waitForSelector(createPostModalSelector, { visible: true, timeout: 30000 });
-    console.log('Create new post modal loaded.');
 
-    // Add a caption
-    const captionInputSelector = 'div[aria-label="Write a caption..."]';
-    await page.waitForSelector(captionInputSelector, { visible: true, timeout: 30000 });
-    console.log('Caption input field loaded.');
+    // this part needs modification, the caption is not being posted with the video.
+    // Wait for the input field to appear
+    // const inputSelector = 'div[aria-label="Write a caption..."][contenteditable="true"]';
+    // await page.waitForSelector(inputSelector, { visible: true });
 
+    // // Click the input field to focus it
+    // await page.click(inputSelector);
+    // await delay(1000);
 
-    // Set the caption using JavaScript
-    await page.evaluate((selector, caption) => {
-      const captionInput = document.querySelector(selector);
-      if (captionInput) {
-        // Set the caption text
-        captionInput.textContent = caption;
+    // // Type the caption
+    // // await page.type(inputSelector, caption);
+    // await page.type(inputSelector, "بسم الله الرحمن الرحيم");
 
-        // Trigger input, change, and blur events
-        const inputEvent = new Event('input', { bubbles: true });
-        const changeEvent = new Event('change', { bubbles: true });
-        const blurEvent = new Event('blur', { bubbles: true });
+    // // Trigger an input event to ensure the website registers the change
+    // await page.evaluate((selector) => {
+    //     const element = document.querySelector(selector);
+    //     const event = new Event('input', { bubbles: true });
+    //     element.dispatchEvent(event);
+    // }, inputSelector);
 
-        captionInput.dispatchEvent(inputEvent);
-        captionInput.dispatchEvent(changeEvent);
-        captionInput.dispatchEvent(blurEvent);
-
-        console.log('Caption set and events triggered.');
-      } else {
-        console.error('Caption input field not found!');
-      }
-    }, captionInputSelector, caption);
-
-    await delay(1000); // Wait for 1 second to ensure the caption is processed
-
-    // Debug: Log the value of the caption input field
-    const captionValue = await page.evaluate((selector) => {
-      const captionInput = document.querySelector(selector);
-      return captionInput ? captionInput.textContent : 'Caption input not found!';
-    }, captionInputSelector);
-    console.log('Caption value after setting:', captionValue);
+    // await delay(2000); // Wait for the caption to be processed
 
     // Click the "Share" button
     await page.evaluate(() => {
@@ -169,10 +155,6 @@ module.exports.postVideo = async (videoPath, caption) => {
     console.log('Clicked the "Share" button.');
     await delay(2000); // Wait for 5 seconds
 
-    // Optional: Take a screenshot of the post confirmation
-    // await page.screenshot({ path: 'post_confirmation.png' });
-    // console.log('Screenshot of post confirmation taken.');
-
     // Close the browser
     await delay(60000)
     await browser.close();
@@ -180,10 +162,5 @@ module.exports.postVideo = async (videoPath, caption) => {
   } catch (error) {
     console.error('An error occurred:', error);
 
-    // Debug: Take a screenshot on error
-    // if (page) {
-    //   await page.screenshot({ path: 'error_screenshot.png' });
-    //   console.log('Screenshot taken on error.');
-    // }
   }
 };

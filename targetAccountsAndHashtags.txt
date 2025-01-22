@@ -8,7 +8,7 @@ https://www.instagram.com/quraan.versess/
 
 #to do
 
-add views count for my account
+add views count for my account [done]
 send status dailey to telegram
 send logs like errors and confirm messages to telegram
 make an api and interface for starting, stopping and controlling the script
