@@ -1,7 +1,7 @@
 const { downloader } = require("./instagramVideoDownloader");
 const { getUrls } = require("./reelsUrlsExtractor");
 const getViewsCount = require("./viewsCount");
-
+const login = require("./login");
 // downloader("https://www.instagram.com/reel/Cja1WB1qTbo/")
 //     .then((data) => console.log(data))
 
@@ -11,5 +11,7 @@ const getViewsCount = require("./viewsCount");
 
 // console.log(process.env.INSTAGRAM_USERNAME);
 
-getViewsCount();
+// getViewsCount();
 
+
+login(process.env.INSTAGRAM_USERNAME, process.env.INSTAGRAM_PASSWORD);
