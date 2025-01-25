@@ -1,4 +1,5 @@
 const getViewsCount = require("../viewsCount");
+const { getUrls } = require("../reelsUrlsExtractor");
 
 module.exports.reelsCountFunction = async (req, res) => {
     try {
@@ -26,3 +27,23 @@ module.exports.reelsCountFunction = async (req, res) => {
         });
     }
 };
+
+module.exports.getReelsUrls = async (req, res) => {
+    try {
+        const { reelsPageUrl } = req.body;
+
+        const reels = await getUrls(reelsPageUrl);
+        res.status(200).json({
+            account: reelsPageUrl,
+            reelsCount: reels.length,
+            reels
+        });
+    } catch (err) {
+        console.error("Error in getReelsUrls:", err);
+
+        res.status(500).json({
+            message: "Failed to retrieve reels urls",
+            error: err.message // Include the error message for debugging
+        });
+    }
+}
