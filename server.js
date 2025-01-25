@@ -11,6 +11,26 @@ app.use(express.static('assets'));
 app.use("/login", loginRoutes);
 app.use("/reels", reelsRoutes);
 
+app.get("/", (req, res) => {
+    res.status(200).json(
+        {
+            about: "This is an API that scrapes Instagram reels and returns the total views of the reels.",
+            endpoints: [
+                {
+                    method: "POST",
+                    url: "/login",
+                    description: "Logs in to Instagram and saves the cookies to a file."
+                },
+                {
+                    method: "POST",
+                    url: "/reels",
+                    description: "Scrapes Instagram reels and returns the total views of the reels."
+                }
+            ]
+        }
+    )
+})
+
 
 const Port = process.env.PORT || 1234
 
