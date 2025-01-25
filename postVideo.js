@@ -5,12 +5,12 @@ const fs = require('fs');
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 
-module.exports = postVideo = async (videoPath, caption, dimentions_9_16 = true) => {
+module.exports.postVideo = async (videoPath, caption, dimentions_9_16 = true) => {
   let page;
 
   try {
     // Launch the browser
-    const browser = await puppeteer.launch({ headless: false }); // set headless to false if you want to see the web page.
+    const browser = await puppeteer.launch({ headless: true }); // set headless to false if you want to see the web page.
     page = await browser.newPage();
 
     // Load cookies from the file
