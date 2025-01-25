@@ -156,9 +156,10 @@ module.exports.postVideo = async (videoPath, caption, dimentions_9_16 = true) =>
     await delay(2000); // Wait for 5 seconds
 
     // Close the browser
-    await delay(60000)
+    await delay(30000)  // wait for 30 seconds before closing the browser.
     await browser.close();
     console.log('Browser closed.');
+    return true;
   } catch (error) {
     console.error('An error occurred:', error);
 
