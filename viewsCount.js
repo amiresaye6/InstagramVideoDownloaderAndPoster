@@ -9,7 +9,7 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 /**
  * Counts the total views from Instagram reels and sends the result to Telegram.
  */
-const getViewsCount = async (baseUrl = 'https://www.instagram.com/fadhakkir_quran/reels/') => {
+const getViewsCount = async (accountUserName) => {
     let page;
     let totalViews = 0;
 
@@ -29,7 +29,9 @@ const getViewsCount = async (baseUrl = 'https://www.instagram.com/fadhakkir_qura
         }
 
         // Navigate to the reels page
-        await page.goto(baseUrl);
+        await page.goto(`https://www.instagram.com/${accountUserName}/reels/`);
+        console.log(`https://www.instagram.com/${accountUserName}/reels/`);
+        
         await page.waitForSelector('div._aajy'); // Wait for the reels container to load
 
         let previousHeight;
@@ -66,6 +68,7 @@ const getViewsCount = async (baseUrl = 'https://www.instagram.com/fadhakkir_qura
         await sendMessage(message); // Use the sendMessage module
 
         await browser.close();
+        return totalViews;
     } catch (error) {
         console.error('An error occurred:', error);
 

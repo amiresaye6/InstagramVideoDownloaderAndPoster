@@ -1,5 +1,6 @@
 const express = require("express");
-const homeRoutes = require("./routes/homePage.routes");
+const loginRoutes = require("./routes/login.routes");
+const reelsRoutes = require("./routes/reels.routes");
 
 const app = express();
 
@@ -7,7 +8,8 @@ app.use(express.json());
 app.set("view engine", 'ejs');
 app.use(express.static('assets'));
 
-app.use("/", homeRoutes);
+app.use("/login", loginRoutes);
+app.use("/reels", reelsRoutes);
 
 
 const Port = process.env.PORT || 1234
