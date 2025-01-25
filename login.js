@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-(async () => {
+module.exports.loing = async (userName, password) => {
   // Launch the browser
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
@@ -20,12 +20,12 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   await delay(2000); // Wait for 2 seconds
 
   // Enter username
-  await page.type('input[name="username"]', process.env.INSTAGRAM_USERNAME);
+  await page.type('input[name="username"]', userName);
   console.log('Username entered.');
   await delay(2000); // Wait for 2 seconds
 
   // Enter password
-  await page.type('input[name="password"]', process.env.INSTAGRAM_PASSWORD);
+  await page.type('input[name="password"]', password);
   console.log('Password entered.');
   await delay(2000); // Wait for 2 seconds
 
@@ -46,4 +46,4 @@ const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   // Close the browser
   await browser.close();
   console.log('Browser closed.');
-})();
+}
