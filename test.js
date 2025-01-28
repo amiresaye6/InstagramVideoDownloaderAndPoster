@@ -11,5 +11,5 @@ const getViewsCount = require("./viewsCount");
 
 // console.log(process.env.INSTAGRAM_USERNAME);
 
-getViewsCount();
+getViewsCount("fadhakkir");
 

@@ -4,7 +4,7 @@ require('dotenv').config();
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-module.exports.loing = async (userName, password) => {
+const login = async (userName, password) => {
   // Launch the browser
   const browser = await puppeteer.launch({ headless: false });
   const page = await browser.newPage();
@@ -46,4 +46,7 @@ module.exports.loing = async (userName, password) => {
   // Close the browser
   await browser.close();
   console.log('Browser closed.');
+  return true;
 }
+
+module.exports = login ;

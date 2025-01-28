@@ -11,7 +11,7 @@ module.exports.loginFunction = async (req, res) => {
         const defaultPassword = process.env.INSTAGRAM_PASSWORD;
         try {
             const result = await login(defaultUserName, defaultPassword); // Call the login function
-            return res.status(200).json({ message: "Logged in with default credentials", result });
+            return res.status(200).json({ message: "Logged in with default credentials", result: result? "Login successful" : "Login failed" });
         } catch (error) {
             return res.status(400).json({ message: "Default login failed", error: error.message });
         }

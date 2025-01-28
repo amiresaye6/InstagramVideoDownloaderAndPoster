@@ -7,11 +7,13 @@ require('dotenv').config();
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
- * Counts the total views from Instagram reels and sends the result to Telegram.
+ * Extracts account data and calculates totals for views, loves, and comments.
  */
 const getViewsCount = async (accountUserName) => {
     let page;
     let totalViews = 0;
+    let totalLoves = 0;
+    let totalComments = 0;
 
     try {
         // Launch the browser
@@ -30,9 +32,10 @@ const getViewsCount = async (accountUserName) => {
 
         // Navigate to the reels page
         await page.goto(`https://www.instagram.com/${accountUserName}/reels/`);
-        console.log(`https://www.instagram.com/${accountUserName}/reels/`);
-        
-        await page.waitForSelector('div._aajy'); // Wait for the reels container to load
+        console.log(`Navigated to: https://www.instagram.com/${accountUserName}/reels/`);
+
+        // Wait for the reels container to load
+        await page.waitForSelector('div div div span span.html-span');
 
         let previousHeight;
         let hasMoreReels = true;
@@ -49,26 +52,50 @@ const getViewsCount = async (accountUserName) => {
             }
         }
 
-        // Extract all view counts
-        const viewCounts = await page.$$eval(
-            'div._aajy span.xdj266r.x11i5rnm.xat24cr.x1mh8g0r.xexx8yu.x4uap5.x18d9i69.xkhd6sd.x1hl2dhg.x16tdsg8.x1vvkbs',
-            elements => elements.map(el => {
-                const text = el.textContent.trim();
-                return parseInt(text.replace(/,/g, ''), 10); // Remove commas and convert to number
-            })
+        // Extract all text content from the specified selector
+        const textContents = await page.$$eval(
+            'div div div span span.html-span',
+            elements => elements.map(el => el.textContent.trim())
         );
 
-        // Calculate the total views
-        totalViews = viewCounts.reduce((sum, views) => sum + views, 0);
+        console.log('Extracted text contents:', textContents);
 
-        console.log('Total views count:', totalViews);
+        // Parse the first three numbers (posts, followers, following)
+        const posts = parseInt(textContents[0], 10);
+        const followers = parseInt(textContents[1], 10);
+        const following = parseInt(textContents[2], 10);
 
-        // Send the total views count to Telegram
-        const message = `Total views count: ${totalViews}`;
+        // Parse the remaining numbers (views, loves, comments)
+        for (let i = 3; i < textContents.length; i += 3) {
+            const loves = parseInt(textContents[i], 10);
+            const comments = parseInt(textContents[i + 1], 10);
+            const views = parseInt(textContents[i + 2], 10);
+
+            if (!isNaN(views)) totalViews += views;
+            if (!isNaN(loves)) totalLoves += loves;
+            if (!isNaN(comments)) totalComments += comments;
+        }
+
+        console.log('Account Data:', { posts, followers, following });
+        console.log('Totals:', { totalViews, totalLoves, totalComments });
+
+        // Send the formatted message to Telegram
+        const message = `
+📊 *Account Data for https://www.instagram.com/${accountUserName}*:
+- Posts: ${posts}
+- Followers: ${followers}
+- Following: ${following}
+
+📈 *Totals*:
+- Total Views: ${totalViews}
+- Total Loves: ${totalLoves}
+- Total Comments: ${totalComments}
+        `;
+
         await sendMessage(message); // Use the sendMessage module
 
-        await browser.close();
-        return totalViews;
+        // await browser.close();
+        return { posts, followers, following, totalViews, totalLoves, totalComments };
     } catch (error) {
         console.error('An error occurred:', error);
 
