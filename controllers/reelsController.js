@@ -71,17 +71,21 @@ module.exports.getReelsUrls = async (req, res) => {
 
 module.exports.postReel = async (req, res) => {
     try {
-        const { reelUrl } = req.body;
+        const { reelUrl, dimentions, debugging } = req.body;
 
         // Input validation
-        if (!reelUrl) {
-            return sendResponse(res, 400, false, "reelUrl is required");
+        if (!reelUrl || !dimentions) {
+            return sendResponse(res, 400, false, "reelUrl, dimentions are required");
+        }
+    
+        if (dimentions !== "1/1" && dimentions !== "16/9" && dimentions !== "9/16" && dimentions !== "original") {
+            return sendResponse(res, 400, false, "Invalid dimentions, must be one of: 1/1, 16/9, 9/16, original");
         }
 
         const metaData = await downloader(reelUrl);
 
         // Call the postVideo function to post the reel (path, caption)
-        const reel = await postVideo(metaData.fileName, metaData.userName);
+        const reel = await postVideo(metaData.fileName, metaData.userName, dimentions, debugging);
 
         // Check if the reel was posted successfully
         if (reel) {

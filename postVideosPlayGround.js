@@ -1,12 +1,10 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
-const { downloader } = require('./instagramVideoDownloader');
 
 // Helper function to introduce delays
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-
-module.exports = postVideo = async (videoPath, caption, dimentions_9_16 = true) => {
+const postVideo = async (videoPath, caption, dimentions = "original") => {
     let page;
 
     try {
@@ -60,20 +58,32 @@ module.exports = postVideo = async (videoPath, caption, dimentions_9_16 = true) 
         await delay(1000); // Wait for 1 second
 
         // changing video dimentions to 9/16 optional
-        if (dimentions_9_16) {
-            try {
-                await page.waitForSelector('svg[aria-label="Select crop"]', { visible: true });
-                await page.click('svg[aria-label="Select crop"]');
-                console.log('Button clicked successfully!');
-                await delay(1000);
+        await page.waitForSelector('svg[aria-label="Select crop"]', { visible: true });
+        await page.click('svg[aria-label="Select crop"]');
+        console.log('Button clicked successfully!');
+        await delay(1000);
 
+        try {
+            if (dimentions === "original") {
+                await page.waitForSelector('svg[aria-label="Photo outline icon"]', { visible: true });
+                await page.click('svg[aria-label="Photo outline icon"]');
+                console.log('Photo outline icon Button clicked successfully!');
+            } else if (dimentions === "1/1") {
+                await page.waitForSelector('svg[aria-label="Crop square icon"]', { visible: true });
+                await page.click('svg[aria-label="Crop square icon"]');
+                console.log('Crop square icon Button clicked successfully!');
+            } else if (dimentions === "16/9") {
+                await page.waitForSelector('svg[aria-label="Crop landscape icon"]', { visible: true });
+                await page.click('svg[aria-label="Crop landscape icon"]');
+                console.log('Crop landscape icon Button clicked successfully!');
+            } else if (dimentions === "9/16") {
                 await page.waitForSelector('svg[aria-label="Crop portrait icon"]', { visible: true });
                 await page.click('svg[aria-label="Crop portrait icon"]');
-                console.log('Button clicked successfully!');
-                await delay(1000);
-            } catch (error) {
-                console.error('Failed to click the button:', error);
+                console.log('Crop portrait icon Button clicked successfully!');
             }
+            await delay(1000);
+        } catch (error) {
+            console.error('Failed to click the dimentions button:', error);
         }
 
         // Wait for the crop modal to appear (if applicable)
@@ -122,29 +132,6 @@ module.exports = postVideo = async (videoPath, caption, dimentions_9_16 = true) 
         console.log('Clicked the second "Next" button.');
         await delay(1000); // Wait for 1 second
 
-
-        // this part needs modification, the caption is not being posted with the video.
-        // Wait for the input field to appear
-        // const inputSelector = 'div[aria-label="Write a caption..."][contenteditable="true"]';
-        // await page.waitForSelector(inputSelector, { visible: true });
-
-        // // Click the input field to focus it
-        // await page.click(inputSelector);
-        // await delay(1000);
-
-        // // Type the caption
-        // // await page.type(inputSelector, caption);
-        // await page.type(inputSelector, "بسم الله الرحمن الرحيم");
-
-        // // Trigger an input event to ensure the website registers the change
-        // await page.evaluate((selector) => {
-        //     const element = document.querySelector(selector);
-        //     const event = new Event('input', { bubbles: true });
-        //     element.dispatchEvent(event);
-        // }, inputSelector);
-
-        // await delay(2000); // Wait for the caption to be processed
-
         // Click the "Share" button
         await page.evaluate(() => {
             const buttons = document.querySelectorAll('div[role="dialog"][aria-label="Create new post"] div[role="button"]');
@@ -154,23 +141,27 @@ module.exports = postVideo = async (videoPath, caption, dimentions_9_16 = true) 
             }
         });
         console.log('Clicked the "Share" button.');
-        await delay(2000); // Wait for 5 seconds
+        await delay(2000); // Wait for 2 seconds
+
+        // Wait for the "Your reel has been shared" element to appear
+        await page.waitForSelector('div[style="margin-bottom: 16px; margin-top: 16px;"] > div[style="opacity: 1;"] > span[dir="auto"]', { visible: true });
+        console.log('Reel shared confirmation is visible.');
+        await delay(1000); // Wait for 1 second
 
         // Close the browser
-        await delay(60000)
         await browser.close();
         console.log('Browser closed.');
+        return true;
     } catch (error) {
         console.error('An error occurred:', error);
-
     }
 };
 
-const args = process.argv.slice(2);
+const { downloader } = require("./instagramVideoDownloader");
 
-downloader(args[0])
+downloader("https://www.instagram.com/p/C1UxlX2sWkb/")
     .then((metaData) => {
-        postVideo(metaData.fileName, metaData.userName);
+        postVideo(metaData.fileName, metaData.userName, "16/9");
     }).then(() => {
         console.log("video posted successfully");
     })
