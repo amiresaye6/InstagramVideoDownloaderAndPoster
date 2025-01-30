@@ -4,7 +4,7 @@ const fs = require('fs');
 // Helper function to introduce delays
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-module.exports.postVideo = async (videoPath, caption, dimentions = "original", debugging = false) => {
+module.exports.postVideo = async (videoPath, thumbnailPath, caption, dimentions = "original", debugging = false) => {
   let page;
 
   try {
@@ -114,6 +114,16 @@ module.exports.postVideo = async (videoPath, caption, dimentions = "original", d
     await page.waitForSelector(editModalSelector, { visible: true, timeout: 30000 });
     console.log('Edit modal loaded.');
 
+    const thumbnailInputSelector = 'input[type="file"]'; // Selector for the file input
+    await page.waitForSelector(thumbnailInputSelector);
+    console.log('File input field loaded.');
+
+    // Upload the video
+    const thumbnailInput = await page.$(thumbnailInputSelector);
+    await thumbnailInput.uploadFile(thumbnailPath);
+    console.log('thumbnail uploaded.');
+    await delay(1000); // Wait for 1 second
+
     // Click the second "Next" button
     await page.waitForFunction(() => {
       const buttons = document.querySelectorAll('div[role="dialog"][aria-label="Edit"] div[role="button"]');
@@ -144,7 +154,7 @@ module.exports.postVideo = async (videoPath, caption, dimentions = "original", d
     await delay(2000); // Wait for 2 seconds
 
     // Wait for the "Your reel has been shared" element to appear
-    await page.waitForSelector('div[style="margin-bottom: 16px; margin-top: 16px;"] > div[style="opacity: 1;"] > span[dir="auto"]', { visible: true });
+    await page.waitForSelector('div[style="margin-bottom: 16px; margin-top: 16px;"] > div[style="opacity: 1;"] > span[dir="auto"]', { visible: true, timeout: 60000 });
     console.log('Reel shared confirmation is visible.');
     await delay(1000); // Wait for 1 second
 

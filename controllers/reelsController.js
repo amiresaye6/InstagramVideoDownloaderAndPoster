@@ -85,7 +85,7 @@ module.exports.postReel = async (req, res) => {
         const metaData = await downloader(reelUrl);
 
         // Call the postVideo function to post the reel (path, caption)
-        const reel = await postVideo(metaData.fileName, metaData.userName, dimentions, debugging);
+        const reel = await postVideo(metaData.videoFilePath, metaData.thumbnailFilePath, metaData.userName, dimentions, debugging);
 
         // Check if the reel was posted successfully
         if (reel) {

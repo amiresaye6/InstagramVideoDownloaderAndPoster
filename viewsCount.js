@@ -81,7 +81,7 @@ const getViewsCount = async (accountUserName) => {
 
         // Send the formatted message to Telegram
         const message = `
-📊 *Account Data for https://www.instagram.com/${accountUserName}*:
+📊 Account Data for https://www.instagram.com/${accountUserName}:
 - Posts: ${posts}
 - Followers: ${followers}
 - Following: ${following}

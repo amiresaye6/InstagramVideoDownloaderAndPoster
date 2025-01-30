@@ -9,13 +9,7 @@ module.exports.downloader = async (instagramVideoUrl) => {
 
         const videoUrl = data.media_details[0].url;
         const userName = data.post_info.owner_username;
-
-        // // Download the video
-        const response = await axios({
-            method: 'GET',
-            url: videoUrl,
-            responseType: 'stream',
-        });
+        const thumbnailUrl = data.media_details[0].thumbnail; // Thumbnail URL
 
         // Define the downloads directory
         const downloadsDir = path.join(__dirname, 'downloads');
@@ -25,25 +19,62 @@ module.exports.downloader = async (instagramVideoUrl) => {
             fs.mkdirSync(downloadsDir);
         }
 
-        // Generate the file name
-        const fileName = `${userName}_instagram_video_${Date.now()}.mp4`;
+        // Generate the file name for the video
+        const videoFileName = `${userName}_instagram_video_${Date.now()}.mp4`;
+        const videoFilePath = path.join(downloadsDir, videoFileName);
 
-        // Define the output file path inside the downloads directory
-        const outputFilePath = path.join(downloadsDir, fileName);
-
-        // Create a write stream and pipe the response data to it
-        const writer = fs.createWriteStream(outputFilePath);
-        response.data.pipe(writer);
-
-        writer.on('finish', () => {
-            console.log('Video downloaded successfully! at ', outputFilePath);
+        // Download the video (using stream)
+        const videoResponse = await axios({
+            method: 'GET',
+            url: videoUrl,
+            responseType: 'stream',
         });
 
-        writer.on('error', (err) => {
-            console.error('Error writing video file:', err);
+        const videoWriter = fs.createWriteStream(videoFilePath);
+        videoResponse.data.pipe(videoWriter);
+
+        // Wait for the video to finish downloading
+        await new Promise((resolve, reject) => {
+            videoWriter.on('finish', () => {
+                console.log('Video downloaded successfully! at ', videoFilePath);
+                resolve();
+            });
+
+            videoWriter.on('error', (err) => {
+                console.error('Error writing video file:', err);
+                reject(err);
+            });
         });
-        return { fileName: "downloads/" + fileName, userName };
+
+        // Define the thumbnails directory
+        const thumbnailsDir = path.join(downloadsDir, 'thumbnails');
+
+        // Create the thumbnails directory if it doesn't exist
+        if (!fs.existsSync(thumbnailsDir)) {
+            fs.mkdirSync(thumbnailsDir);
+        }
+
+        // Generate the file name for the thumbnail
+        const thumbnailFileName = `${userName}_instagram_thumbnail_${Date.now()}.jpg`;
+        const thumbnailFilePath = path.join(thumbnailsDir, thumbnailFileName);
+
+        // Download the thumbnail (without stream)
+        const thumbnailResponse = await axios({
+            method: 'GET',
+            url: thumbnailUrl,
+            responseType: 'arraybuffer', // Download as a buffer
+        });
+
+        // Save the thumbnail to disk
+        fs.writeFileSync(thumbnailFilePath, thumbnailResponse.data);
+        console.log('Thumbnail downloaded successfully! at ', thumbnailFilePath);
+
+        return {
+            videoFilePath: "downloads/" + videoFileName,
+            thumbnailFilePath: "downloads/thumbnails/" + thumbnailFileName,
+            userName,
+        };
     } catch (error) {
-        console.error('Error downloading video:', error);
+        console.error('Error downloading video or thumbnail:', error);
     }
-}
+};

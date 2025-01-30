@@ -4,7 +4,7 @@ const fs = require('fs');
 // Helper function to introduce delays
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const postVideo = async (videoPath, caption, dimentions = "original") => {
+const postVideo = async (videoPath, thumbnailPath, caption, dimentions = "original") => {
     let page;
 
     try {
@@ -114,6 +114,16 @@ const postVideo = async (videoPath, caption, dimentions = "original") => {
         await page.waitForSelector(editModalSelector, { visible: true, timeout: 30000 });
         console.log('Edit modal loaded.');
 
+        const thumbnailInputSelector = 'input[type="file"]'; // Selector for the file input
+        await page.waitForSelector(thumbnailInputSelector);
+        console.log('File input field loaded.');
+
+        // Upload the video
+        const thumbnailInput = await page.$(thumbnailInputSelector);
+        await thumbnailInput.uploadFile(thumbnailPath);
+        console.log('thumbnail uploaded.');
+        await delay(1000); // Wait for 1 second
+
         // Click the second "Next" button
         await page.waitForFunction(() => {
             const buttons = document.querySelectorAll('div[role="dialog"][aria-label="Edit"] div[role="button"]');
@@ -159,9 +169,9 @@ const postVideo = async (videoPath, caption, dimentions = "original") => {
 
 const { downloader } = require("./instagramVideoDownloader");
 
-downloader("https://www.instagram.com/p/C1UxlX2sWkb/")
+downloader("https://www.instagram.com/p/DFTgxfBMrrp/")
     .then((metaData) => {
-        postVideo(metaData.fileName, metaData.userName, "16/9");
+        postVideo(metaData.videoFilePath, metaData.thumbnailFilePath, metaData.userName, "original");
     }).then(() => {
         console.log("video posted successfully");
     })
