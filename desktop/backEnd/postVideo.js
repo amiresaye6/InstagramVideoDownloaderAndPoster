@@ -1,10 +1,12 @@
 const puppeteer = require('puppeteer');
 const fs = require('fs');
+const { join } = require('path');
+
 
 // Helper function to introduce delays
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-const postVideo = async (videoPath, thumbnailPath, caption, dimentions = "original") => {
+module.exports.postVideo = async (videoPath, thumbnailPath, caption, dimentions = "original") => {
     let page;
 
     try {
@@ -46,8 +48,8 @@ const postVideo = async (videoPath, thumbnailPath, caption, dimentions = "origin
 
         // Upload the video
         const fileInput = await page.$(fileInputSelector);
-        await fileInput.uploadFile(videoPath);
-        console.log('Video uploaded.');
+        await fileInput.uploadFile(join(__dirname, videoPath));
+        console.log('Video uploaded. ', join(__dirname, videoPath));
         await delay(1000); // Wait for 1 second
 
         // Wait for the modal to appear after video selection
@@ -171,13 +173,3 @@ const postVideo = async (videoPath, thumbnailPath, caption, dimentions = "origin
         console.error('An error occurred:', error);
     }
 };
-
-const { downloader } = require("./instagramVideoDownloader");
-
-downloader("https://www.instagram.com/reel/C4CP76IK0M3/")
-    .then((metaData) => {
-        postVideo(metaData.videoFilePath, metaData.thumbnailFilePath, metaData.userName, "original");
-    }).then(() => {
-        console.log("video posted successfully");
-    })
-// https://www.instagram.com/reel/DFOVbICNBgn/

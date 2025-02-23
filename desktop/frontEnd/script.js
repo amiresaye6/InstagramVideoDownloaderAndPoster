@@ -2,10 +2,10 @@
 const themeToggle = document.getElementById('themeToggle');
 const body = document.body;
 const sidebar = document.querySelector('.sidebar');
-const toggleSidebar = document.createElement('button'); // Add toggle button dynamically for mobile
+const toggleSidebar = document.createElement('button');
 toggleSidebar.className = 'toggle-sidebar-mobile';
 toggleSidebar.textContent = '☰';
-toggleSidebar.style.display = 'none'; // Hidden by default on desktop
+toggleSidebar.style.display = 'none';
 document.querySelector('.header').appendChild(toggleSidebar);
 
 // Sidebar Toggle for Mobile
@@ -26,30 +26,18 @@ const cards = document.querySelectorAll('.card');
 
 menuItems.forEach(item => {
     item.addEventListener('click', () => {
-        // Remove active class from all items
         menuItems.forEach(i => i.classList.remove('active'));
-        // Add active class to clicked item
         item.classList.add('active');
-
-        // Hide all cards and dashboard
         cards.forEach(card => card.classList.add('hidden'));
         dashboardCards.classList.add('hidden');
-
-        // Show the corresponding section
         const section = item.getAttribute('data-section');
         if (section === 'dashboard') {
             dashboardCards.classList.remove('hidden');
         } else {
             const cardToShow = document.querySelector(`.${section}-card`);
-            if (cardToShow) {
-                cardToShow.classList.remove('hidden');
-            }
+            if (cardToShow) cardToShow.classList.remove('hidden');
         }
-
-        // Collapse sidebar on mobile after clicking
-        if (window.innerWidth <= 768) {
-            sidebar.classList.add('collapsed');
-        }
+        if (window.innerWidth <= 768) sidebar.classList.add('collapsed');
     });
 });
 
@@ -58,18 +46,14 @@ document.querySelectorAll('.dashboard-card').forEach(card => {
     card.addEventListener('click', () => {
         const section = card.getAttribute('data-section');
         menuItems.forEach(item => {
-            if (item.getAttribute('data-section') === section) {
-                item.click(); // Simulate clicking the corresponding menu item
-            }
+            if (item.getAttribute('data-section') === section) item.click();
         });
     });
     card.querySelector('.dashboard-btn').addEventListener('click', (e) => {
-        e.stopPropagation(); // Prevent triggering the card click
+        e.stopPropagation();
         const section = card.getAttribute('data-section');
         menuItems.forEach(item => {
-            if (item.getAttribute('data-section') === section) {
-                item.click(); // Simulate clicking the corresponding menu item
-            }
+            if (item.getAttribute('data-section') === section) item.click();
         });
     });
 });
@@ -81,23 +65,37 @@ const loginStatus = document.getElementById('loginStatus');
 const uploadLoginRequired = document.getElementById('uploadLoginRequired');
 const uploadForm = document.getElementById('uploadForm');
 
-loginForm.addEventListener('submit', (e) => {
+loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    // Simulate login (replace with actual login logic)
-    isLoggedIn = true;
-    loginStatus.textContent = 'Logged in successfully';
-    loginStatus.classList.add('logged-in');
-    uploadLoginRequired.style.display = 'none';
-    uploadForm.classList.remove('hidden');
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+
+    try {
+        const response = await fetch('/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password }),
+        });
+        const data = await response.json();
+        if (data.success) {
+            isLoggedIn = true;
+            loginStatus.textContent = 'Logged in successfully';
+            loginStatus.classList.add('logged-in');
+            uploadLoginRequired.style.display = 'none';
+            uploadForm.classList.remove('hidden');
+        } else {
+            alert('Login failed: ' + data.error);
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
 });
 
 // File Upload Handling
 const dropZone = document.getElementById('dropZone');
 const fileInput = document.getElementById('fileInput');
 
-dropZone.addEventListener('click', () => {
-    fileInput.click();
-});
+dropZone.addEventListener('click', () => fileInput.click());
 
 dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -118,9 +116,7 @@ dropZone.addEventListener('drop', (e) => {
 });
 
 fileInput.addEventListener('change', (e) => {
-    if (e.target.files.length > 0) {
-        handleFile(e.target.files[0]);
-    }
+    if (e.target.files.length > 0) handleFile(e.target.files[0]);
 });
 
 function handleFile(file) {
@@ -129,17 +125,61 @@ function handleFile(file) {
 
 // Download Form Handling
 const downloadForm = document.getElementById('downloadForm');
-downloadForm.addEventListener('submit', (e) => {
+downloadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    // Add your download logic here
-    console.log('Downloading reel:', downloadForm.downloadUrl.value);
+    const url = document.getElementById('downloadUrl').value;
+    try {
+        const response = await fetch('/api/download', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ url }),
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert(`Video downloaded to ${data.videoFilePath}`);
+        } else {
+            alert('Download failed: ' + data.error);
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
 });
 
 // Upload Form Handling
-uploadForm.addEventListener('submit', (e) => {
+uploadForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    // Add your upload logic here
-    console.log('Uploading content');
+    if (!isLoggedIn) {
+        alert('Please log in first!');
+        return;
+    }
+    const reelUrl = document.getElementById('reelUrl').value;
+    const caption = document.getElementById('caption').value;
+    const file = fileInput.files[0];
+
+    if (!file && !reelUrl) {
+        alert('Please provide a video file or URL.');
+        return;
+    }
+
+    const videoPath = file ? file.path : reelUrl; // Use file.path for local files in Electron
+    const thumbnailPath = null; // Add thumbnail input if needed
+    const dimensions = 'original';
+
+    try {
+        const response = await fetch('/api/upload', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({reelUrl, videoPath, thumbnailPath, caption, dimensions }),
+        });
+        const data = await response.json();
+        if (data.success) {
+            alert('Video posted successfully!');
+        } else {
+            alert('Upload failed: ' + data.error);
+        }
+    } catch (error) {
+        alert('Error: ' + error.message);
+    }
 });
 
 // Handle mobile responsiveness
@@ -153,7 +193,6 @@ window.addEventListener('resize', () => {
     }
 });
 
-// Initial check for mobile
 if (window.innerWidth <= 768) {
     toggleSidebar.style.display = 'block';
     sidebar.classList.add('collapsed');
