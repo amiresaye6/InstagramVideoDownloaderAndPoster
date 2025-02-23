@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Automation Tool</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h2>Al Copilot</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li class="menu-item active" data-section="dashboard">Dashboard</li>
+                <li class="menu-item" data-section="login">Login</li>
+                <li class="menu-item" data-section="download">Download</li>
+                <li class="menu-item" data-section="upload">Post Video</li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <div class="container">
+                <div class="header">
+                    <h1 class="title">Instagram Automation Tool</h1>
+                    <button class="toggle-theme" id="themeToggle">🌙</button>
+                </div>
+                
+                <div class="content-area">
+                    <div class="dashboard-cards">
+                        <div class="dashboard-card" data-section="login">
+                            <h3>Login to Instagram</h3>
+                            <p>Securely log in to manage your Instagram account.</p>
+                            <button class="dashboard-btn">Get Started</button>
+                        </div>
+                        <div class="dashboard-card" data-section="upload">
+                            <h3>Post a Video</h3>
+                            <p>Upload your reels to Instagram with ease.</p>
+                            <button class="dashboard-btn">Upload Now</button>
+                        </div>
+                        <div class="dashboard-card" data-section="download">
+                            <h3>Download a Reel</h3>
+                            <p>Download Instagram reels quickly and efficiently.</p>
+                            <button class="dashboard-btn">Download Now</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Login Card -->
+                    <div class="card login-card hidden" id="loginCard">
+                        <h2 class="card-title">Instagram Login</h2>
+                        <div id="loginStatus" class="login-status">Not logged in</div>
+                        <form id="loginForm">
+                            <div class="form-group">
+                                <label for="username">Instagram Username</label>
+                                <input type="text" id="username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Instagram Password</label>
+                                <input type="password" id="password" required>
+                            </div>
+                            <button type="submit" class="btn">Login</button>
+                        </form>
+                    </div>
+
+                    <!-- Download Reel Card -->
+                    <div class="card download-card hidden">
+                        <h2 class="card-title">Download Reel</h2>
+                        <form id="downloadForm">
+                            <div class="form-group">
+                                <label for="downloadUrl">Instagram Reel URL</label>
+                                <input type="text" id="downloadUrl" placeholder="https://www.instagram.com/reel/..." required>
+                            </div>
+                            <button type="submit" class="btn">Download Reel</button>
+                        </form>
+                    </div>
+
+                    <!-- Upload Reel Card -->
+                    <div class="card upload-card hidden" id="uploadCard">
+                        <h2 class="card-title">Upload to Instagram</h2>
+                        <div id="uploadLoginRequired" class="login-status">Please login first</div>
+                        <form id="uploadForm" class="hidden">
+                            <div class="form-group">
+                                <label for="reelUrl">Instagram Reel URL</label>
+                                <input type="text" id="reelUrl" placeholder="https://www.instagram.com/reel/...">
+                            </div>
+                            <div class="or-divider">OR</div>
+                            <div class="file-upload" id="dropZone">
+                                <p>Drag and drop your video here or click to upload</p>
+                                <input type="file" id="fileInput" accept="video/*" style="display: none">
+                            </div>
+                            <div class="form-group">
+                                <label for="caption">Caption</label>
+                                <textarea id="caption" rows="3" placeholder="Write your caption here..."></textarea>
+                            </div>
+                            <button type="submit" class="btn">Post to Instagram</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

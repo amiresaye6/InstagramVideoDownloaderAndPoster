@@ -9,7 +9,7 @@ const postVideo = async (videoPath, thumbnailPath, caption, dimentions = "origin
 
     try {
         // Launch the browser
-        const browser = await puppeteer.launch({ headless: false }); // set headless to false if you want to see the web page.
+        const browser = await puppeteer.launch({ headless: true }); // set headless to false if you want to see the web page.
         page = await browser.newPage();
 
         // Load cookies from the file
@@ -25,6 +25,11 @@ const postVideo = async (videoPath, thumbnailPath, caption, dimentions = "origin
         // Navigate to Instagram's homepage
         await page.goto('https://www.instagram.com/');
         console.log('Navigated to Instagram homepage.');
+        await delay(1000); // Wait for 1 second
+
+        // Refresh the page
+        await page.reload();
+        console.log('Page refreshed.');
         await delay(1000); // Wait for 1 second
 
         // Click the "Create" button to open the post creation modal
@@ -154,7 +159,7 @@ const postVideo = async (videoPath, thumbnailPath, caption, dimentions = "origin
         await delay(2000); // Wait for 2 seconds
 
         // Wait for the "Your reel has been shared" element to appear
-        await page.waitForSelector('div[style="margin-bottom: 16px; margin-top: 16px;"] > div[style="opacity: 1;"] > span[dir="auto"]', { visible: true });
+        await page.waitForSelector('div[style="margin-bottom: 16px; margin-top: 16px;"] > div[style="opacity: 1;"] > span[dir="auto"]', { visible: true, timeout: 60000 });
         console.log('Reel shared confirmation is visible.');
         await delay(1000); // Wait for 1 second
 
@@ -169,9 +174,10 @@ const postVideo = async (videoPath, thumbnailPath, caption, dimentions = "origin
 
 const { downloader } = require("./instagramVideoDownloader");
 
-downloader("https://www.instagram.com/p/DFTgxfBMrrp/")
+downloader("https://www.instagram.com/p/DEX2koEiHHK/")
     .then((metaData) => {
         postVideo(metaData.videoFilePath, metaData.thumbnailFilePath, metaData.userName, "original");
     }).then(() => {
         console.log("video posted successfully");
     })
+// https://www.instagram.com/reel/DFOVbICNBgn/
